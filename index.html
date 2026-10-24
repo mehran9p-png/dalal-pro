@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دلال باش | سامانه هوشمند تحلیل دلار و اقتصاد ایران</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="glass rounded-2xl p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-4 h-10 bg-emerald-500 rounded-full"></div>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-emerald-400">دلال باش (DalalBash)</h1>
+                <p class="text-slate-400 text-sm">داشبورد جامع تحلیل تکنیکال، فاندامنتال و سیاسی دلار ایران</p>
+            </div>
+        </div>
+        <div class="text-left md:text-right bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700">
+            <span class="text-xs text-slate-400 block">بروزرسانی تحلیل بعدی:</span>
+            <span id="countdown" class="text-lg font-mono text-amber-400 font-bold">01:59:59</span>
+        </div>
+    </header>
+
+    <!-- Top Metrics -->
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="glass p-5 rounded-2xl">
+            <span class="text-slate-400 text-sm">قیمت لحظه‌ای دلار آزاد (تخمینی)</span>
+            <div class="text-2xl font-bold text-white mt-2" id="currentPrice">۶۸,۵۰۰ تومان</div>
+            <span class="text-xs text-emerald-400 mt-1 block">+۱.۲٪ نسبت به دیروز</span>
+        </div>
+        <div class="glass p-5 rounded-2xl">
+            <span class="text-slate-400 text-sm">ارزش ذاتی دلار (بر اساس تورم و نقدینگی)</span>
+            <div class="text-2xl font-bold text-amber-400 mt-2" id="intrinsicValue">۷۱,۲۰۰ تومان</div>
+            <span class="text-xs text-slate-400 mt-1 block">حباب منفی / پتانسیل رشد</span>
+        </div>
+        <div class="glass p-5 rounded-2xl">
+            <span class="text-slate-400 text-sm">شاخص ریسک سیاسی و ژئوپلیتیک</span>
+            <div class="text-2xl font-bold text-rose-400 mt-2" id="politicalRisk">۷۵ از ۱۰۰ (بالا)</div>
+            <span class="text-xs text-slate-400 mt-1 block">تاثیر مستقیم بر تقاضای هیجانی</span>
+        </div>
+        <div class="glass p-5 rounded-2xl">
+            <span class="text-slate-400 text-sm">وضعیت سیاست بانک مرکزی</span>
+            <div class="text-2xl font-bold text-cyan-400 mt-2" id="cbPolicy">انقباضی / ارزپاشی</div>
+            <span class="text-xs text-slate-400 mt-1 block">نرخ بهره بین‌بانکی: ۲۳.۸٪</span>
+        </div>
+    </section>
+
+    <!-- Main Content: Chart & 2-Hour AI Analysis -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        
+        <!-- Chart Section -->
+        <div class="glass p-6 rounded-2xl lg:col-span-2">
+            <h2 class="text-lg font-bold mb-4 text-slate-200">نمودار قیمت و میانگین متحرک (تایم‌فریم ۲ ساعته)</h2>
+            <canvas id="dollarChart" height="140"></canvas>
+        </div>
+
+        <!-- 2-Hour Smart Analysis Box -->
+        <div class="glass p-6 rounded-2xl flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-emerald-400">میز تحلیل ۲ ساعته</h2>
+                    <span class="bg-emerald-500/20 text-emerald-300 text-xs px-2 py-1 rounded">فعال</span>
+                </div>
+                <p id="analysisText" class="text-sm text-slate-300 leading-7 mb-6 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                    در حال بارگذاری تحلیل...
+                </p>
+
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm border-b border-slate-700 pb-2">
+                        <span class="text-slate-400">محدوده عالی خرید پله‌ای:</span>
+                        <span class="font-bold text-emerald-400" id="buyZone">۶۶,۸۰۰ - ۶۷,۵۰۰</span>
+                    </div>
+                    <div class="flex justify-between text-sm border-b border-slate-700 pb-2">
+                        <span class="text-slate-400">میانگین متحرک ۵۰ دوره‌ای:</span>
+                        <span class="font-bold text-amber-400" id="ma50">۶۷,۹۰۰ تومان</span>
+                    </div>
+                    <div class="flex justify-between text-sm pb-2">
+                        <span class="text-slate-400">سیگنال کلی سیستم:</span>
+                        <span class="font-bold text-cyan-400" id="signalStatus">نگهداری / خرید در اصلاح</span>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="runTwoHourAnalysis()" class="mt-6 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">
+                بروزرسانی دستی تحلیل ۲ ساعته
+            </button>
+        </div>
+    </div>
+
+    <!-- Fundamental & Inflation Simulator -->
+    <section class="glass p-6 rounded-2xl">
+        <h2 class="text-lg font-bold mb-4 text-slate-200">شبیه‌ساز فاندامنتال (تورم، قدرت خرید و سیاست‌ها)</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label class="block text-sm text-slate-400 mb-2">نرخ تورم سالانه ایران (٪): <span id="infVal" class="text-white font-bold">45</span>%</label>
+                <input type="range" id="inflationSlider" min="20" max="80" value="45" class="w-full accent-emerald-500" oninput="updateFundamentals()">
+            </div>
+            <div>
+                <label class="block text-sm text-slate-400 mb-2">شدت تنش‌های سیاسی (۱ تا ۱۰۰): <span id="polVal" class="text-white font-bold">75</span></label>
+                <input type="range" id="politicalSlider" min="1" max="100" value="75" class="w-full accent-rose-500" oninput="updateFundamentals()">
+            </div>
+            <div>
+                <label class="block text-sm text-slate-400 mb-2">قدرت مداخله و ارزپاشی بانک مرکزی (۱ تا ۱۰۰): <span id="cbVal" class="text-white font-bold">60</span></label>
+                <input type="range" id="cbSlider" min="1" max="100" value="60" class="w-full accent-cyan-500" oninput="updateFundamentals()">
+            </div>
+        </div>
+        <div class="mt-6 p-4 bg-slate-900/70 rounded-xl border border-slate-800 flex flex-col md:flex-row justify-between items-center">
+            <span class="text-sm text-slate-300">برآورد قیمت تعادلی دلار با توجه به پارامترهای بالا و کاهش قدرت خرید ریال:</span>
+            <span id="calculatedTarget" class="text-xl font-bold text-amber-400 mt-2 md:mt-0">۷۰,۸۵۰ تومان</span>
+        </div>
+    </section>
+
+    <script>
+        // Sample Data for Chart
+        const labels = ['۱۰:۰۰', '۱۲:۰۰', '۱۴:۰۰', '۱۶:۰۰', '۱۸:۰۰', '۲۰:۰۰', '۲۲:۰۰', '۰۰:۰۰'];
+        const priceData = [67200, 67500, 67300, 67800, 68100, 67950, 68300, 68500];
+        const maData = [66900, 67050, 67150, 67300, 67500, 67650, 67800, 67900];
+
+        const ctx = document.getElementById('dollarChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'قیمت بازار آزاد (تومان)',
+                        data: priceData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'میانگین ارزش خرید (MA)',
+                        data: maData,
+                        borderColor: '#f59e0b',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { labels: { color: '#cbd5e1', font: { family: 'Vazirmatn' } } }
+                },
+                scales: {
+                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
+
+        // 2-Hour Analysis Generator
+        function runTwoHourAnalysis() {
+            const current = priceData[priceData.length - 1];
+            const ma = maData[maData.length - 1];
+            const diff = current - ma;
+
+            let message = "";
+            if (diff > 500) {
+                message = `قیمت فعلی (${current.toLocaleString()} تومان) بالاتر از میانگین متحرک ۲ ساعته قرار دارد. به دلیل اخبار سیاسی و انتظارات تورمی، تقاضای هیجانی در بازار دیده می‌شود. ورود سنگین در این نقطه ریسک بالایی دارد؛ بهترین استراتژی صبر برای اصلاح قیمت به سمت محدوده میانگین (${ma.toLocaleString()} تومان) است.`;
+                document.getElementById('signalStatus').innerText = "صبر برای اصلاح (حباب کوتاه‌مدت)";
+                document.getElementById('signalStatus').className = "font-bold text-amber-400";
+            } else {
+                message = `قیمت در محدوده نزدیک به میانگین خرید و ارزش ذاتی قرار گرفته است. با توجه به رشد پایه پولی و کاهش قدرت خرید، این ناحیه برای خرید پله‌ای (میانگین کم کردن) کم‌ریسک ارزیابی می‌شود.`;
+                document.getElementById('signalStatus').innerText = "مناسب برای خرید پله‌ای";
+                document.getElementById('signalStatus').className = "font-bold text-emerald-400";
+            }
+            document.getElementById('analysisText').innerText = message;
+        }
+
+        // Fundamental Calculator
+        function updateFundamentals() {
+            const inf = parseInt(document.getElementById('inflationSlider').value);
+            const pol = parseInt(document.getElementById('politicalSlider').value);
+            const cb = parseInt(document.getElementById('cbSlider').value);
+
+            document.getElementById('infVal').innerText = inf;
+            document.getElementById('polVal').innerText = pol;
+            document.getElementById('cbVal').innerText = cb;
+
+            document.getElementById('politicalRisk').innerText = `${pol} از ۱۰۰`;
+
+            const basePrice = 55000;
+            const target = Math.round(basePrice * (1 + (inf / 100) * 0.6) + (pol * 150) - (cb * 120));
+            document.getElementById('calculatedTarget').innerText = target.toLocaleString() + ' تومان';
+            document.getElementById('intrinsicValue').innerText = target.toLocaleString() + ' تومان';
+        }
+
+        // 2-Hour Countdown Timer
+        let seconds = 7200;
+        setInterval(() => {
+            seconds--;
+            if (seconds <= 0) {
+                seconds = 7200;
+                runTwoHourAnalysis();
+            }
+            const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            document.getElementById('countdown').innerText = `${h}:${m}:${s}`;
+        }, 1000);
+
+        // Initialize
+        runTwoHourAnalysis();
+        updateFundamentals();
+    </script>
+</body>
+</html>
